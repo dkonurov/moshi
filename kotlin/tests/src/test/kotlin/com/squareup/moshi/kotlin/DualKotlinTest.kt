@@ -11,6 +11,7 @@ import com.squareup.moshi.ToJson
 import com.squareup.moshi.Types
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 import com.squareup.moshi.kotlin.reflect.adapter
+import com.squareup.moshi.kotlin.reflect.list.ArrayKotlinJsonAdapterFactory
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.Assert.fail
 import org.junit.Test
@@ -41,6 +42,7 @@ class DualKotlinTest(useReflection: Boolean) {
   private val moshi = Moshi.Builder()
       .apply {
         if (useReflection) {
+          add(ArrayKotlinJsonAdapterFactory())
           add(KotlinJsonAdapterFactory())
           add(object : Factory {
             override fun create(
@@ -162,6 +164,19 @@ class DualKotlinTest(useReflection: Boolean) {
   @JsonClass(generateAdapter = true)
   class HasNonNullPropertyDifferentJsonName {
     @Json(name = "aPrime") var a: String = ""
+  }
+
+  @Test fun nonNullConstructorListWithNullItemFailsWithJsonDataException() {
+    val jsonAdpater = moshi.adapter<List<HasNonNullConstructorParameter>>()
+
+//    try {
+      // language=JSON
+      val list = jsonAdpater.fromJson("""[{"a":  "hello"}, {"a":  "hello2"}, null]""")
+      println("list: ${list?.joinToString()};")
+//      fail()
+//    } catch (expected: JsonDataException) {
+//       assertThat(expected).hasMessage("test")
+//    }
   }
 
   @Test fun nonNullConstructorParameterCalledWithNullFailsWithJsonDataException() {

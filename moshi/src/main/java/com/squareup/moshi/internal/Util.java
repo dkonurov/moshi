@@ -130,7 +130,9 @@ public final class Util {
    * Object#equals(Object) Object.equals()}.
    */
   public static Type canonicalize(Type type) {
-    if (type instanceof Class) {
+    if (type instanceof CustomCanonizeType) {
+      return type;
+    } else if (type instanceof Class) {
       Class<?> c = (Class<?>) type;
       return c.isArray() ? new GenericArrayTypeImpl(canonicalize(c.getComponentType())) : c;
 
@@ -338,6 +340,13 @@ public final class Util {
     if ((type instanceof Class<?>) && ((Class<?>) type).isPrimitive()) {
       throw new IllegalArgumentException("Unexpected primitive " + type + ". Use the boxed type.");
     }
+  }
+
+  /**
+   * If you need add your own custom type implementation you can implements CustomCanonizeType
+   */
+  public interface CustomCanonizeType extends Type {
+
   }
 
   public static final class ParameterizedTypeImpl implements ParameterizedType {

@@ -57,11 +57,15 @@ internal fun KType.toType(): Type {
         } else {
           val typeArguments = arguments.toTypedArray { it.toType() }
           val enclosingClass = javaType.enclosingClass
-          return if (enclosingClass != null) {
+          val javaParameterizedType = if (enclosingClass != null) {
             Types.newParameterizedTypeWithOwner(enclosingClass, javaType, *typeArguments)
           } else {
             Types.newParameterizedType(javaType, *typeArguments)
           }
+          return KotlinParametrizedTypeImpl(
+                    kotlinType = this,
+                    parametrizedJavaType = javaParameterizedType
+            )
         }
       }
       else -> throw IllegalArgumentException("Unsupported classifier: $this")
